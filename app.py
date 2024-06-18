@@ -1,56 +1,56 @@
-import psutil
-import time
-import threading
-import os
+# import psutil
+# import time
+# import threading
+# import os
 
-def monitor_recursos(file_path, interval=1):
-    process = psutil.Process()
-    with open(file_path, 'w') as file:
-        file.write("Fecha, Uso CPU, Uso Memoria (MB), Lectura Disco (MB), Escritura Disco (MB), "
-                   "Datos Enviados (MB), Datos Recibidos (MB), Hilos, Tiempo de CPU (Usuario), Tiempo de CPU (Sistema), Archivos abiertos\n")
-        try:
-            while True:
-                fecha = time.strftime("%Y-%m-%d %H:%M:%S")
-                uso_cpu = process.cpu_percent(interval=interval)
-                uso_memoria = process.memory_info()
-                uso_memoria = uso_memoria.rss / (1024 * 1024)
+# def monitor_recursos(file_path, interval=1):
+    # process = psutil.Process()
+    # with open(file_path, 'w') as file:
+        # file.write("Fecha, Uso CPU, Uso Memoria (MB), Lectura Disco (MB), Escritura Disco (MB), "
+                   # "Datos Enviados (MB), Datos Recibidos (MB), Hilos, Tiempo de CPU (Usuario), Tiempo de CPU (Sistema), Archivos abiertos\n")
+        # try:
+            # while True:
+                # fecha = time.strftime("%Y-%m-%d %H:%M:%S")
+                # uso_cpu = process.cpu_percent(interval=interval)
+                # uso_memoria = process.memory_info()
+                # uso_memoria = uso_memoria.rss / (1024 * 1024)
 
-                io = process.io_counters()
-                lectura_disco = io.read_bytes / (1024 * 1024)
-                escritura_disco = io.write_bytes / (1024 * 1024)
+                # io = process.io_counters()
+                # lectura_disco = io.read_bytes / (1024 * 1024)
+                # escritura_disco = io.write_bytes / (1024 * 1024)
 
-                io_red = psutil.net_io_counters(pernic=False)
-                datos_enviados = io_red.bytes_sent / (1024 * 1024)
-                datos_recibidos = io_red.bytes_recv / (1024 * 1024) 
+                # io_red = psutil.net_io_counters(pernic=False)
+                # datos_enviados = io_red.bytes_sent / (1024 * 1024)
+                # datos_recibidos = io_red.bytes_recv / (1024 * 1024) 
 
-                hilos = process.num_threads()
+                # hilos = process.num_threads()
 
-                cpu = process.cpu_times()
-                cpu_usuario = cpu.user
-                cpu_sistema = cpu.system
+                # cpu = process.cpu_times()
+                # cpu_usuario = cpu.user
+                # cpu_sistema = cpu.system
 
-                open_files = len(process.open_files())
+                # open_files = len(process.open_files())
 
-                file.write(f"{fecha}, {uso_cpu}, {uso_memoria}, {lectura_disco}, {escritura_disco}, "
-                           f"{datos_enviados}, {datos_recibidos}, {hilos}, {cpu_usuario}, {cpu_sistema}, {open_files}\n")
-                file.flush() 
-                time.sleep(interval)
-        except psutil.NoSuchProcess:
-            print("Process terminated.")
-        except KeyboardInterrupt:
-            print("Monitoring stopped.")
+                # file.write(f"{fecha}, {uso_cpu}, {uso_memoria}, {lectura_disco}, {escritura_disco}, "
+                           # f"{datos_enviados}, {datos_recibidos}, {hilos}, {cpu_usuario}, {cpu_sistema}, {open_files}\n")
+                # file.flush() 
+                # time.sleep(interval)
+        # except psutil.NoSuchProcess:
+            # print("Process terminated.")
+        # except KeyboardInterrupt:
+            # print("Monitoring stopped.")
 
-def iniciar_monitoreo(file_path):
-    monitor_thread = threading.Thread(target=monitor_recursos, args=(file_path,))
-    monitor_thread.daemon = True
-    monitor_thread.start()
+# def iniciar_monitoreo(file_path):
+    # monitor_thread = threading.Thread(target=monitor_recursos, args=(file_path,))
+    # monitor_thread.daemon = True
+    # monitor_thread.start()
 
-tests_folder = os.path.join(os.path.dirname(__file__), 'tests')
-#tests_path = os.path.join(tests_folder, 'monitoreo_recursos_multicarga.txt')
-tests_path = os.path.join(tests_folder, 'monitoreo_recursos.txt')
+# tests_folder = os.path.join(os.path.dirname(__file__), 'tests')
+# #tests_path = os.path.join(tests_folder, 'monitoreo_recursos_multicarga.txt')
+# tests_path = os.path.join(tests_folder, 'monitoreo_recursos.txt')
 
-if __name__ == "__main__":
-    iniciar_monitoreo(tests_path)
+# if __name__ == "__main__":
+    # iniciar_monitoreo(tests_path)
 
 import dash
 from dash import Dash, dcc, html, Input, Output
