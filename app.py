@@ -1,55 +1,56 @@
-# import psutil
-# import time
-# import threading
-# import os
+import psutil
+import time
+import threading
+import os
 
-# def monitor_recursos(file_path, interval=2):
-#     process = psutil.Process()
-#     with open(file_path, 'w') as file:
-#         file.write("Fecha, Uso CPU, Uso Memoria (MB), Lectura Disco (MB), Escritura Disco (MB), "
-#                    "Datos Enviados (MB), Datos Recibidos (MB), Hilos, Tiempo de CPU (Usuario), Tiempo de CPU (Sistema), Archivos abiertos\n")
-#         try:
-#             while True:
-#                 fecha = time.strftime("%Y-%m-%d %H:%M:%S")
-#                 uso_cpu = process.cpu_percent(interval=interval)
-#                 uso_memoria = process.memory_info()
-#                 uso_memoria = uso_memoria.rss / (1024 * 1024)
+def monitor_recursos(file_path, interval=1):
+    process = psutil.Process()
+    with open(file_path, 'w') as file:
+        file.write("Fecha, Uso CPU, Uso Memoria (MB), Lectura Disco (MB), Escritura Disco (MB), "
+                   "Datos Enviados (MB), Datos Recibidos (MB), Hilos, Tiempo de CPU (Usuario), Tiempo de CPU (Sistema), Archivos abiertos\n")
+        try:
+            while True:
+                fecha = time.strftime("%Y-%m-%d %H:%M:%S")
+                uso_cpu = process.cpu_percent(interval=interval)
+                uso_memoria = process.memory_info()
+                uso_memoria = uso_memoria.rss / (1024 * 1024)
 
-#                 io = process.io_counters()
-#                 lectura_disco = io.read_bytes / (1024 * 1024)
-#                 escritura_disco = io.write_bytes / (1024 * 1024)
+                io = process.io_counters()
+                lectura_disco = io.read_bytes / (1024 * 1024)
+                escritura_disco = io.write_bytes / (1024 * 1024)
 
-#                 io_red = psutil.net_io_counters(pernic=False)
-#                 datos_enviados = io_red.bytes_sent / (1024 * 1024)
-#                 datos_recibidos = io_red.bytes_recv / (1024 * 1024) 
+                io_red = psutil.net_io_counters(pernic=False)
+                datos_enviados = io_red.bytes_sent / (1024 * 1024)
+                datos_recibidos = io_red.bytes_recv / (1024 * 1024) 
 
-#                 hilos = process.num_threads()
+                hilos = process.num_threads()
 
-#                 cpu = process.cpu_times()
-#                 cpu_usuario = cpu.user
-#                 cpu_sistema = cpu.system
+                cpu = process.cpu_times()
+                cpu_usuario = cpu.user
+                cpu_sistema = cpu.system
 
-#                 open_files = len(process.open_files())
+                open_files = len(process.open_files())
 
-#                 file.write(f"{fecha}, {uso_cpu}, {uso_memoria}, {lectura_disco}, {escritura_disco}, "
-#                            f"{datos_enviados}, {datos_recibidos}, {hilos}, {cpu_usuario}, {cpu_sistema}, {open_files}\n")
-#                 file.flush() 
-#                 time.sleep(interval)
-#         except psutil.NoSuchProcess:
-#             print("Process terminated.")
-#         except KeyboardInterrupt:
-#             print("Monitoring stopped.")
+                file.write(f"{fecha}, {uso_cpu}, {uso_memoria}, {lectura_disco}, {escritura_disco}, "
+                           f"{datos_enviados}, {datos_recibidos}, {hilos}, {cpu_usuario}, {cpu_sistema}, {open_files}\n")
+                file.flush() 
+                time.sleep(interval)
+        except psutil.NoSuchProcess:
+            print("Process terminated.")
+        except KeyboardInterrupt:
+            print("Monitoring stopped.")
 
-# def iniciar_monitoreo(file_path):
-#     monitor_thread = threading.Thread(target=monitor_recursos, args=(file_path,))
-#     monitor_thread.daemon = True
-#     monitor_thread.start()
+def iniciar_monitoreo(file_path):
+    monitor_thread = threading.Thread(target=monitor_recursos, args=(file_path,))
+    monitor_thread.daemon = True
+    monitor_thread.start()
 
-# tests_folder = os.path.join(os.path.dirname(__file__), 'tests')
-# tests_path = os.path.join(tests_folder, 'monitoreo_recursos_multicarga.txt')
+tests_folder = os.path.join(os.path.dirname(__file__), 'tests')
+#tests_path = os.path.join(tests_folder, 'monitoreo_recursos_multicarga.txt')
+tests_path = os.path.join(tests_folder, 'monitoreo_recursos.txt')
 
-# if __name__ == "__main__":
-#     iniciar_monitoreo(tests_path)
+if __name__ == "__main__":
+    iniciar_monitoreo(tests_path)
 
 import dash
 from dash import Dash, dcc, html, Input, Output
@@ -242,7 +243,7 @@ def actualizar_titulo(departamento, municipio, tab):
         elif tab == 'tab-5':
             return 'Las Quejas solamente se pueden visualizar a nivel nacional'
         elif tab == 'tab-6':
-            return 'Portada'
+            return 'Portada: Penetración a nivel nacional'
         elif tab == 'tab-7':
             return 'Acerca de'
         else:
@@ -259,7 +260,7 @@ def actualizar_titulo(departamento, municipio, tab):
         elif tab == 'tab-5':
             return 'Quejas a nivel nacional'
         elif tab == 'tab-6':
-            return 'Portada'
+            return 'Portada: Penetración a nivel nacional'
         elif tab == 'tab-7':
             return 'Acerca de'
         else:
@@ -560,15 +561,17 @@ def actualizar_graficas_tabs (tab, anno, trimestre, selected_departamentos, sele
     elif tab == 'tab-7':
         return html.Div([
             dbc.Row([
-                html.P("Esta herramienta de análisis y visualización está construida a partir de los datos abiertos obtenidos de www.datos.gov.co y www.postdata.gov.co:", style={'font-size': '40px'}),
-                html.A("Accesos de Internet Fijo", href="https://postdata.gov.co/sites/default/files/datasets/data/ACCESOS_INTERNET_FIJO_2_20.csv", target="_blank", style={'font-size': '30px'}),
-                html.A("Ingresos de Internet Fijo", href="https://postdata.gov.co/sites/default/files/datasets/data/INGRESOS_INTERNET_FIJO_17.csv", target="_blank", style={'font-size': '30px'}),
-                html.A("Quejas de Internet Fijo", href="https://postdata.gov.co/sites/default/files/datasets/data/FT4_2_INT_FIJO_9.csv", target="_blank", style={'font-size': '30px'}),
-                html.A("Empaquetamiento de servicios fijos", href="https://postdata.gov.co/sites/default/files/datasets/data/EMPAQUETAMIENTO_FIJO_2.csv", target="_blank", style={'font-size': '30px'}),
-                html.A("Internet Fijo Penetración Departamentos", href="https://www.datos.gov.co/resource/4py7-br84.csv?$query=SELECT%0A%20%20%60a_o%60%2C%0A%20%20%60trimestre%60%2C%0A%20%20%60cod_departamento%60%2C%0A%20%20%60departamento%60%2C%0A%20%20%60no_accesos_fijos_a_Internet%60%2C%0A%20%20%60poblaci_n_dane%60%2C%0A%20%20%60indice%60%0A", target="_blank", style={'font-size': '30px'}),
+                html.P([html.Br(),"Esta herramienta de análisis y visualización se desarrolló como proyecto académico dentro del Máster Universitario en Análisis y Visualización de Datos Masivos de la Universidad Internacional de La Rioja.", html.Br()], style={'font-size': '40px'}),
+                html.P(["El código fuente se puede consultar en ", html.A("GitHub", href="https://github.com/andresdiazc1977/Dashboard-Internet-Fijo-Colombia/blob/main/", target="_blank"), ".", html.Br()] , style={'font-size': '40px'}),
+                html.P(["Los conjuntos de datos abiertos utilizados fueron obtenidos de los portales www.datos.gov.co y www.postdata.gov.co:"], style={'font-size': '40px'}),
+                html.A("Accesos de Internet Fijo", href="https://postdata.gov.co/sites/default/files/datasets/data/ACCESOS_INTERNET_FIJO_2_20.csv", target="_blank", style={'font-size': '40px'}),
+                html.A("Ingresos de Internet Fijo", href="https://postdata.gov.co/sites/default/files/datasets/data/INGRESOS_INTERNET_FIJO_17.csv", target="_blank", style={'font-size': '40px'}),
+                html.A("Quejas de Internet Fijo", href="https://postdata.gov.co/sites/default/files/datasets/data/FT4_2_INT_FIJO_9.csv", target="_blank", style={'font-size': '40px'}),
+                html.A("Empaquetamiento de servicios fijos", href="https://postdata.gov.co/sites/default/files/datasets/data/EMPAQUETAMIENTO_FIJO_2.csv", target="_blank", style={'font-size': '40px'}),
+                html.A("Internet Fijo Penetración Departamentos", href="https://www.datos.gov.co/resource/4py7-br84.csv?$query=SELECT%0A%20%20%60a_o%60%2C%0A%20%20%60trimestre%60%2C%0A%20%20%60cod_departamento%60%2C%0A%20%20%60departamento%60%2C%0A%20%20%60no_accesos_fijos_a_Internet%60%2C%0A%20%20%60poblaci_n_dane%60%2C%0A%20%20%60indice%60%0A", target="_blank", style={'font-size': '40px'}),
+                html.P([html.Br(),html.Br(),html.Br()], style={'font-size': '40px'}),
                 ]),
         ])
-
 
 def filtro_datos_accesos_geografia(anno, trimestre, selected_departamentos, selected_municipios):
     df_Accesos_filtrado_geografia = df_Accesos.copy()
