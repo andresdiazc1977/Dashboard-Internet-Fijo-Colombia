@@ -20,16 +20,16 @@ def driver(request):
     logger.info(f"Iniciando el navegador: {request.param}")
     if request.param == "chrome":
         chrome_options = ChromeOptions()
-        chrome_options.add_argument("--start-fullscreen")
+        #chrome_options.add_argument("--start-fullscreen")
         driver = webdriver.Chrome(options=chrome_options)
     elif request.param == "firefox":
         firefox_options = FirefoxOptions()
-        firefox_options.add_argument("--kiosk")
+        #firefox_options.add_argument("--kiosk")
         driver = webdriver.Firefox(options=firefox_options)
-        driver.maximize_window()
+        #driver.maximize_window()
     elif request.param == "edge":
         edge_options = EdgeOptions()
-        edge_options.add_argument("--start-fullscreen")
+        #edge_options.add_argument("--start-fullscreen")
         driver = webdriver.Edge(options=edge_options)
     else:
         raise ValueError(f"Navegador no soportado: {request.param}")
@@ -40,7 +40,7 @@ def driver(request):
 
 def test_filtros_presentes(driver):
     logger.info("Iniciando validación de existencia de los filtros")
-    wait = WebDriverWait(driver, 60)
+    wait = WebDriverWait(driver, 20)
     anno_filtro = wait.until(EC.presence_of_element_located((By.ID, 'anno-filtro')))
     assert anno_filtro.is_displayed()
     trimestre_filtro = wait.until(EC.presence_of_element_located((By.ID, 'trimestre-filtro')))
@@ -53,7 +53,7 @@ def test_filtros_presentes(driver):
 
 def test_titulos_dinamicos(driver):
     logger.info("Iniciando validación de títulos dinámicos")
-    wait = WebDriverWait(driver, 60)
+    wait = WebDriverWait(driver, 20)
     encabezado = wait.until(EC.presence_of_element_located((By.ID, 'encabezado')))
     assert encabezado.is_displayed()
     titulo = wait.until(EC.presence_of_element_located((By.ID, 'titulo')))
@@ -62,7 +62,7 @@ def test_titulos_dinamicos(driver):
 
 def test_filtros_funcionales(driver):
     logger.info("Iniciando validación de funcionamiento de filtros")
-    wait = WebDriverWait(driver, 30)
+    wait = WebDriverWait(driver, 20)
     time.sleep(30)
     anno_filtro = wait.until(EC.element_to_be_clickable((By.ID, 'anno-filtro')))
     anno_filtro.click()
@@ -119,9 +119,9 @@ def test_filtros_funcionales(driver):
 def test_verificar_tabs(driver, tab_nombre, tab_index, graph_ids):
     logger.info("Iniciando validación de pestañas y gráficos")
     tab_xpath = f"//*[@id='tabs']/div[{tab_index}]"
-    tab = WebDriverWait(driver, 180).until(EC.element_to_be_clickable((By.XPATH, tab_xpath)))
+    tab = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, tab_xpath)))
     tab.click()
-    wait = WebDriverWait(driver, 180)
+    wait = WebDriverWait(driver, 20)
     wait.until(EC.visibility_of_element_located((By.ID, graph_ids[0])))
     for graph_id in graph_ids:
         graph = driver.find_element(By.ID, graph_id)
@@ -130,7 +130,7 @@ def test_verificar_tabs(driver, tab_nombre, tab_index, graph_ids):
     
 def test_indicadores(driver):
     logger.info("Iniciando validación de indicadores")
-    wait = WebDriverWait(driver, 30)
+    wait = WebDriverWait(driver, 20)
     total_accesos_gauge = wait.until(EC.presence_of_element_located((By.ID, 'total-accesos-gauge')))
     assert total_accesos_gauge.is_displayed()
     velocidad_promedio_gauge = wait.until(EC.presence_of_element_located((By.ID, 'velocidad-promedio-gauge')))
