@@ -4,53 +4,53 @@
 # import os
 
 # def monitor_recursos(file_path, interval=1):
-    # process = psutil.Process()
-    # with open(file_path, 'w') as file:
-        # file.write("Fecha, Uso CPU, Uso Memoria (MB), Lectura Disco (MB), Escritura Disco (MB), "
-                   # "Datos Enviados (MB), Datos Recibidos (MB), Hilos, Tiempo de CPU (Usuario), Tiempo de CPU (Sistema), Archivos abiertos\n")
-        # try:
-            # while True:
-                # fecha = time.strftime("%Y-%m-%d %H:%M:%S")
-                # uso_cpu = process.cpu_percent(interval=interval)
-                # uso_memoria = process.memory_info()
-                # uso_memoria = uso_memoria.rss / (1024 * 1024)
+#     process = psutil.Process()
+#     with open(file_path, 'w') as file:
+#         file.write("Fecha, Uso CPU, Uso Memoria (MB), Lectura Disco (MB), Escritura Disco (MB), "
+#                    "Datos Enviados (MB), Datos Recibidos (MB), Hilos, Tiempo de CPU (Usuario), Tiempo de CPU (Sistema), Archivos abiertos\n")
+#         try:
+#             while True:
+#                 fecha = time.strftime("%Y-%m-%d %H:%M:%S")
+#                 uso_cpu = process.cpu_percent(interval=interval)
+#                 uso_memoria = process.memory_info()
+#                 uso_memoria = uso_memoria.rss / (1024 * 1024)
 
-                # io = process.io_counters()
-                # lectura_disco = io.read_bytes / (1024 * 1024)
-                # escritura_disco = io.write_bytes / (1024 * 1024)
+#                 io = process.io_counters()
+#                 lectura_disco = io.read_bytes / (1024 * 1024)
+#                 escritura_disco = io.write_bytes / (1024 * 1024)
 
-                # io_red = psutil.net_io_counters(pernic=False)
-                # datos_enviados = io_red.bytes_sent / (1024 * 1024)
-                # datos_recibidos = io_red.bytes_recv / (1024 * 1024) 
+#                 io_red = psutil.net_io_counters(pernic=False)
+#                 datos_enviados = io_red.bytes_sent / (1024 * 1024)
+#                 datos_recibidos = io_red.bytes_recv / (1024 * 1024) 
 
-                # hilos = process.num_threads()
+#                 hilos = process.num_threads()
 
-                # cpu = process.cpu_times()
-                # cpu_usuario = cpu.user
-                # cpu_sistema = cpu.system
+#                 cpu = process.cpu_times()
+#                 cpu_usuario = cpu.user
+#                 cpu_sistema = cpu.system
 
-                # open_files = len(process.open_files())
+#                 open_files = len(process.open_files())
 
-                # file.write(f"{fecha}, {uso_cpu}, {uso_memoria}, {lectura_disco}, {escritura_disco}, "
-                           # f"{datos_enviados}, {datos_recibidos}, {hilos}, {cpu_usuario}, {cpu_sistema}, {open_files}\n")
-                # file.flush() 
-                # time.sleep(interval)
-        # except psutil.NoSuchProcess:
-            # print("Process terminated.")
-        # except KeyboardInterrupt:
-            # print("Monitoring stopped.")
+#                 file.write(f"{fecha}, {uso_cpu}, {uso_memoria}, {lectura_disco}, {escritura_disco}, "
+#                            f"{datos_enviados}, {datos_recibidos}, {hilos}, {cpu_usuario}, {cpu_sistema}, {open_files}\n")
+#                 file.flush() 
+#                 time.sleep(interval)
+#         except psutil.NoSuchProcess:
+#             print("Process terminated.")
+#         except KeyboardInterrupt:
+#             print("Monitoring stopped.")
 
 # def iniciar_monitoreo(file_path):
-    # monitor_thread = threading.Thread(target=monitor_recursos, args=(file_path,))
-    # monitor_thread.daemon = True
-    # monitor_thread.start()
+#     monitor_thread = threading.Thread(target=monitor_recursos, args=(file_path,))
+#     monitor_thread.daemon = True
+#     monitor_thread.start()
 
 # tests_folder = os.path.join(os.path.dirname(__file__), 'tests')
 # #tests_path = os.path.join(tests_folder, 'monitoreo_recursos_multicarga.txt')
 # tests_path = os.path.join(tests_folder, 'monitoreo_recursos.txt')
 
 # if __name__ == "__main__":
-    # iniciar_monitoreo(tests_path)
+#     iniciar_monitoreo(tests_path)
 
 import dash
 from dash import Dash, dcc, html, Input, Output
@@ -144,23 +144,27 @@ app.layout = html.Div([
         html.Label("Seleccione el año"),
         dcc.Dropdown(id='anno-filtro',
                      options=[{'label': anno, 'value': anno} for anno in df_Accesos['ANNO'].unique()],
-                     value=ultimo_anno
+                     value=ultimo_anno,
+                     style={'width': '100%'}
         ),
         html.Label("Seleccione el trimestre"),
         dcc.Dropdown(id='trimestre-filtro',
                      options=[{'label': trimestre, 'value': trimestre} for trimestre in df_Accesos['TRIMESTRE'].unique()],
-                     value=ultimo_trimestre
+                     value=ultimo_trimestre,
+                     style={'width': '100%'}
         ),
         html.Label("Seleccione uno o varios Departamentos"),
         dcc.Dropdown(id='departamento-filtro',
                      options=[{'label': departamento, 'value': departamento} for departamento in sorted(df_Accesos['DEPARTAMENTO'].unique())],
+                     style={'width': '100%'},
                      multi=True
         ),
         html.Label("Seleccione uno o varios Municipios"),
         dcc.Dropdown(id='municipio-filtro',
+                     style={'width': '100%'},
                      multi=True
         )
-    ], style={'width': '12%', 'display': 'inline-block', 'verticalAlign': 'top', 'padding': '10px', 'marginLeft': '20px'}),
+    ], style={'display': 'inline-block', 'verticalAlign': 'top', 'padding': '10px', 'marginLeft': '10px'}),
     # Panel principal
     html.Div([
         # Cuatro indicadores que están siempre presentes
@@ -341,6 +345,7 @@ def actualizar_graficas_fijas(anno, trimestre):
                         {'range': [6000000, 8000000], 'color': 'silver'}],
                     'threshold' : {'line': {'color': 'red', 'width': 4}, 'thickness': 0.75, 'value': 9990000}}
     ))
+    total_accesos_gauge.update_layout(autosize=True, width=None, height=None)
     # Gráfico de medidor con el promedio de velocidad de descarga
     velocidad_promedio_gauge = go.Figure(go.Indicator(
         mode = 'gauge+number',
@@ -354,6 +359,7 @@ def actualizar_graficas_fijas(anno, trimestre):
                      {'range': [600, 800], 'color': 'silver'}],
                  'threshold' : {'line': {'color': 'red', 'width': 4}, 'thickness': 0.75, 'value': 990}}
     ))
+    velocidad_promedio_gauge.update_layout(autosize=True, width=None, height=None)
     # Gráfico de medidor con el total de ingresos
     ingresos_gauge = go.Figure(go.Indicator(
         mode = 'gauge+number',
@@ -367,6 +373,7 @@ def actualizar_graficas_fijas(anno, trimestre):
                     {'range': [1.5, 2], 'color': 'silver'}],
                 'threshold' : {'line': {'color': 'red', 'width': 4}, 'thickness': 0.75, 'value': 2.49}}
     ))
+    velocidad_promedio_gauge.update_layout(autosize=True, width=None, height=None)
     # Gráfico de medidor con el total de quejas
     quejas_gauge = go.Figure(go.Indicator(
         mode = 'gauge+number',
@@ -380,6 +387,7 @@ def actualizar_graficas_fijas(anno, trimestre):
                      {'range': [600000, 800000], 'color': 'silver'}],
                  'threshold' : {'line': {'color': 'red', 'width': 4}, 'thickness': 0.75, 'value': 990000}}
     ))
+    quejas_gauge.update_layout(autosize=True, width=None, height=None)
 
     return [total_accesos_gauge, velocidad_promedio_gauge, ingresos_gauge, quejas_gauge]
 
@@ -493,15 +501,20 @@ def actualizar_graficas_tabs (tab, anno, trimestre, selected_departamentos, sele
         MapaPenetracion.update_geos(fitbounds='locations', visible=False)
         MapaPenetracion.update_layout(margin={'r':0,'t':0,'l':0,'b':0}, dragmode=False)
         MapaPenetracion.update_layout(title='Penetración por Departamento')
+        MapaPenetracion.update_layout(autosize=True, width=None, height=None)
         return html.Div([
                         dcc.Graph(id='tab6-graph1', figure=MapaPenetracion, style={'height': '90vh'})
         ])
     elif tab == 'tab-1':
-        BarrasAccesos=px.bar(top_10_empresas, y='EMPRESA', x='ACCESOS', orientation='h', title='Accesos por Empresa (Top 10)')
+        BarrasAccesos=px.bar(top_10_empresas, y='EMPRESA', x='ACCESOS', orientation='h', title='Accesos por Empresa (Top 10)')        
         BarrasAccesos.update_layout(annotations=[dict(x=0, y=-1, text=f'Total de Accesos: {total_accesos}', showarrow=False)])
+        BarrasAccesos.update_layout(autosize=True, width=None, height=None)
         PieAccesos=px.pie(top_10_empresas, values='Porcentaje', names='EMPRESA', title='Participación de Mercado (Top 10)')
+        PieAccesos.update_layout(autosize=True, width=None, height=None)
         BarrasEstratoSegmento=px.bar(segmentos, x='SEGMENTO', y='ACCESOS', title='Distribución de Accesos por Estrato y Segmento')
+        BarrasEstratoSegmento.update_layout(autosize=True, width=None, height=None)
         PieEmpaquetamiento=px.pie(empaquetamiento_servicios, values='Porcentaje', names='SERVICIO_PAQUETE', title='Empaquetamiento de Servicios')
+        PieEmpaquetamiento.update_layout(autosize=True, width=None, height=None)
         return html.Div([
             dbc.Row([
                 dbc.Col(dcc.Graph(id='tab1-graph1', figure=BarrasAccesos), lg=6),
@@ -514,9 +527,13 @@ def actualizar_graficas_tabs (tab, anno, trimestre, selected_departamentos, sele
         ])
     elif tab == 'tab-2':
         BarrasIngresos=px.bar(top_10_empresas_ingresos, y='EMPRESA', x='INGRESOS', orientation='h', title='Ingresos por Empresa en Miles de Millones de Pesos (Top 10)')
+        BarrasIngresos.update_layout(autosize=True, width=None, height=None)
         PieIngresos=px.pie(top_10_empresas_ingresos, values='Porcentaje', names='EMPRESA', title='Ingresos por Empresa (Top 10)')
+        PieIngresos.update_layout(autosize=True, width=None, height=None)
         BarrasArpuAccesos=px.bar(arpu_top10_accesos, y='EMPRESA', x='ARPU', orientation='h', title='Ingreso por Acceso (ARPU) Top 10 Empresas por Accesos')
+        BarrasArpuAccesos.update_layout(autosize=True, width=None, height=None)
         BarrasArpuIngresos=px.bar(arpu_top10_ingresos, y='EMPRESA', x='ARPU', orientation='h', title='Ingreso por Acceso (ARPU) Top 10 Empresas por Ingresos')
+        BarrasArpuIngresos.update_layout(autosize=True, width=None, height=None)
         return html.Div([
             dbc.Row([
                 dbc.Col(dcc.Graph(id='tab2-graph1', figure=BarrasIngresos), lg=6),
@@ -529,7 +546,9 @@ def actualizar_graficas_tabs (tab, anno, trimestre, selected_departamentos, sele
         ])
     elif tab == 'tab-3':
         BarrasVelocidades=px.bar(velocidades, x='VELOCIDAD', y='ACCESOS', title='Velocidades de Descarga en Mbps')
+        BarrasVelocidades.update_layout(autosize=True, width=None, height=None)
         BarrasVelocidadesSegmentos=px.bar(velocidades_segmento, x='SEGMENTO', y='ACCESOS', color='VELOCIDAD', barmode='group', title='Distribución de Velocidades de Descarga en Mbps por Estrato y Segmento')
+        BarrasVelocidadesSegmentos.update_layout(autosize=True, width=None, height=None)
         return html.Div([
             dbc.Row([
                 dbc.Col(dcc.Graph(id='tab3-graph1', figure=BarrasVelocidades), lg=6),
@@ -538,6 +557,7 @@ def actualizar_graficas_tabs (tab, anno, trimestre, selected_departamentos, sele
         ])
     elif tab == 'tab-4':
         TreeTecnologia=px.treemap(top_10_tecnologias, path=['TECNOLOGIA'], values='ACCESOS', title='Accesos por Tecnología')
+        TreeTecnologia.update_layout(autosize=True, width=None, height=None)
         return html.Div([
             dbc.Row([
                 dbc.Col(dcc.Graph(id='tab4-graph1', figure=TreeTecnologia), lg=12),
@@ -545,9 +565,13 @@ def actualizar_graficas_tabs (tab, anno, trimestre, selected_departamentos, sele
         ])
     elif tab == 'tab-5':
         BarrasQuejas=px.bar(top_10_empresas_quejas, y='EMPRESA', x='NUMERO_QUEJAS', orientation='h', title='Quejas por Empresa (Top 10)')
+        BarrasQuejas.update_layout(autosize=True, width=None, height=None)
         PieQuejas=px.pie(top_10_empresas_quejas, values='Porcentaje', names='EMPRESA', title='Participación por Empresa (Top 10) en el total de Quejas')
+        PieQuejas.update_layout(autosize=True, width=None, height=None)
         TreeTipologiaQuejas=px.treemap(top_10_tipologia_quejas, path=['TIPOLOGIA'], values='NUMERO_QUEJAS', title='Quejas por Tipología')
+        TreeTipologiaQuejas.update_layout(autosize=True, width=None, height=None)
         PpieMedioQuejas=px.pie(medio_quejas, values='Porcentaje', names='MEDIO_ATENCION', title='Medio de Atención Quejas')
+        PpieMedioQuejas.update_layout(autosize=True, width=None, height=None)
         return html.Div([
             dbc.Row([
                 dbc.Col(dcc.Graph(id='tab5-graph1', figure=BarrasQuejas), lg=6),
