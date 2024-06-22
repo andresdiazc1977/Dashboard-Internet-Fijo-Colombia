@@ -136,70 +136,77 @@ ultimo_trimestre = df_Accesos[df_Accesos['ANNO'] == ultimo_anno]['TRIMESTRE'].ma
 app.layout = html.Div([
     # Encabezado
     html.Div([
-        dbc.Col(html.H1('Indicadores Trimestrales de Internet Fijo en Colombia desde 2022',className='bg-primary text-white p-2 mb-3'),)
-    ], style={'textAlign': 'center', 'backgroundColor': '#f8f9fa','width': '100%'}),
+        dbc.Col(html.H5('Indicadores Trimestrales de Internet Fijo en Colombia desde 2022',className='bg-primary text-white p-2 mb-3'),)
+    ], style={'textAlign': 'center', 'backgroundColor': '#f8f9fa'}),
+    # Barra lateral con filtros
     html.Div([
-        # Barra lateral con filtros
+        dbc.Row(html.H6('Filtros', className='bg-dark text-white p-2 mb-3'),),
+        dbc.Row([
+            dbc.Col([
+                html.Label("Seleccione el año"),
+                dcc.Dropdown(id='anno-filtro',
+                            options=[{'label': anno, 'value': anno} for anno in df_Accesos['ANNO'].unique()],
+                            value=ultimo_anno,
+                            style={'width': '100%'}
+                ),
+            ],lg=3),
+            dbc.Col([   
+                html.Label("Seleccione el trimestre"),
+                dcc.Dropdown(id='trimestre-filtro',
+                            options=[{'label': trimestre, 'value': trimestre} for trimestre in df_Accesos['TRIMESTRE'].unique()],
+                            value=ultimo_trimestre,
+                            style={'width': '100%'}
+                ),
+            ],lg=3),
+            dbc.Col([
+                html.Label("Seleccione uno o varios Departamentos"),
+                dcc.Dropdown(id='departamento-filtro',
+                            options=[{'label': departamento, 'value': departamento} for departamento in sorted(df_Accesos['DEPARTAMENTO'].unique())],
+                            style={'width': '100%', 'overflow-wrap': 'break-word', 'white-space': 'normal'},
+                            multi=True
+                ),
+            ],lg=3),
+            dbc.Col([ 
+                html.Label("Seleccione uno o varios Municipios"),
+                dcc.Dropdown(id='municipio-filtro',
+                            style={'width': '100%', 'overflow-wrap': 'break-word', 'white-space': 'normal'},
+                            multi=True
+                ),
+            ],lg=3),
+        ]),
+        dbc.Row([
+            html.P([html.Br()], style={'font-size': '5px'}),
+            html.Div(["Los filtros", html.B(" Año "), "y", html.B(" Trimestre "), "aplican para todos los indicadores. ",
+                      "Los filtros", html.B(" Departamento "), "y", html.B(" Municipio "), "aplican únicamente para las Pestañas Mercado, Velocidad de Descarga y Tecnología de Conexión."],
+                      className="card text-white bg-danger mb-3",style={'overflow-wrap': 'break-word', 'white-space': 'normal', 'width': '100%', 'display': 'block'}),
+        ]),
+    ], style={'width': '100%','display': 'inline-block', 'verticalAlign': 'top', 'padding': '10px', 'marginLeft': '10px'}),
+    # Panel principal
+    html.Div([
+        # Cuatro indicadores que siempre están presentes
         html.Div([
-            dbc.Row(html.H2('Filtros', className='bg-dark text-white p-2 mb-3'),),
-            html.P([html.Br()], style={'font-size': '20px'}),
-            html.Div("Los filtros de Año y Trimestre aplican para todos los indicadores.",
-                    className="card text-white bg-danger mb-3",style={'overflow-wrap': 'break-word', 'white-space': 'normal', 'width': '100%', 'display': 'block'}),
-            html.Label("Seleccione el año"),
-            dcc.Dropdown(id='anno-filtro',
-                        options=[{'label': anno, 'value': anno} for anno in df_Accesos['ANNO'].unique()],
-                        value=ultimo_anno,
-                        style={'width': '100%'}
-            ),
-            html.Label("Seleccione el trimestre"),
-            dcc.Dropdown(id='trimestre-filtro',
-                        options=[{'label': trimestre, 'value': trimestre} for trimestre in df_Accesos['TRIMESTRE'].unique()],
-                        value=ultimo_trimestre,
-                        style={'width': '100%'}
-            ),
-            html.P([html.Br()], style={'font-size': '20px'}),
-            html.Div("Los filtros de Departamento y Municipio aplican únicamente para las Pestañas Mercado, Velocidad de Descarga y Tecnología de Conexión.",
-                    className="card text-white bg-danger mb-3",style={'overflow-wrap': 'break-word', 'white-space': 'normal', 'width': '100%', 'display': 'block'}),
-            html.Label("Seleccione uno o varios Departamentos"),
-            dcc.Dropdown(id='departamento-filtro',
-                        options=[{'label': departamento, 'value': departamento} for departamento in sorted(df_Accesos['DEPARTAMENTO'].unique())],
-                        style={'width': '100%'},
-                        multi=True
-            ),
-            html.Label("Seleccione uno o varios Municipios"),
-            dcc.Dropdown(id='municipio-filtro',
-                        style={'width': '100%'},
-                        multi=True
-            )        
-        ], style={'width': '15%','display': 'inline-block', 'verticalAlign': 'top', 'padding': '10px', 'marginLeft': '10px','boxSizing': 'border-box'}),
-        # Panel principal
-        html.Div([
-            # Cuatro indicadores que están siempre presentes
-            html.Div([
-                dbc.Row(html.H2(id='encabezado', className='bg-info text-white p-2 mb-3'),),
-                dbc.Row([
-                    dbc.Col(dcc.Graph(id='total-accesos-gauge'), lg=3),
-                    dbc.Col(dcc.Graph(id='velocidad-promedio-gauge'), lg=3),
-                    dbc.Col(dcc.Graph(id='ingresos-gauge'), lg=3),
-                    dbc.Col(dcc.Graph(id='quejas_gauge'), lg=3),
-                ]),
+            dbc.Row(html.H6(id='encabezado', className='bg-info text-white p-2 mb-3'),),
+            dbc.Row([
+                dbc.Col(dcc.Graph(id='total-accesos-gauge', config={'responsive': True}), lg=3),
+                dbc.Col(dcc.Graph(id='velocidad-promedio-gauge', config={'responsive': True}), lg=3),
+                dbc.Col(dcc.Graph(id='ingresos-gauge', config={'responsive': True}), lg=3),
+                dbc.Col(dcc.Graph(id='quejas_gauge', config={'responsive': True}), lg=3),
             ]),
-            # Pestañas con gráficos adicionales
-            #dbc.Row(html.H2('Indicadores con los filtros geográficos seleccionados', className='bg-info text-white p-2 mb-3')),
-            dbc.Row(html.H2(id='titulo', className='bg-info text-white p-2 mb-3')),
-            dcc.Tabs(id='tabs', value='tab-6', children=[
-                dcc.Tab(label='Portada', value='tab-6', className='bg-info text-white p-2 mb-3'),
-                dcc.Tab(label='Mercado', value='tab-1', className='bg-info text-white p-2 mb-3'),
-                dcc.Tab(label='Ingresos', value='tab-2', className='bg-info text-white p-2 mb-3'),
-                dcc.Tab(label='Velocidad de Descarga', value='tab-3', className='bg-info text-white p-2 mb-3'),
-                dcc.Tab(label='Tecnología de Conexión', value='tab-4', className='bg-info text-white p-2 mb-3'),
-                dcc.Tab(label='Quejas', value='tab-5', className='bg-info text-white p-2 mb-3'),
-                dcc.Tab(label='Acerca de', value='tab-7', className='bg-info text-white p-2 mb-3'),
-            ]),
-            html.Div(id='tabs-content')
-        ], style={'width': '85%', 'display': 'inline-block', 'padding': '10px', 'boxSizing': 'border-box'})
-    ], style={'display': 'flex','width': '100%'})
-])
+        ]),
+        # Pestañas con gráficos adicionales
+        dbc.Row(html.H6(id='titulo', className='bg-info text-white p-2 mb-3')),
+        dcc.Tabs(id='tabs', value='tab-6', children=[
+            dcc.Tab(label='Portada', value='tab-6', style={'padding': '5px'}, className='bg-info text-white p-2 mb-3'),
+            dcc.Tab(label='Mercado', value='tab-1', style={'padding': '5px'}, className='bg-info text-white p-2 mb-3'),
+            dcc.Tab(label='Ingresos', value='tab-2', style={'padding': '5px'}, className='bg-info text-white p-2 mb-3'),
+            dcc.Tab(label='Velocidad de Descarga', style={'padding': '5px'}, value='tab-3', className='bg-info text-white p-2 mb-3'),
+            dcc.Tab(label='Tecnología de Conexión', style={'padding': '5px'}, value='tab-4', className='bg-info text-white p-2 mb-3'),
+            dcc.Tab(label='Quejas', value='tab-5', style={'padding': '5px'}, className='bg-info text-white p-2 mb-3'),
+            dcc.Tab(label='Acerca de', value='tab-7', style={'padding': '5px'}, className='bg-info text-white p-2 mb-3'),
+        ]),
+        html.Div(id='tabs-content')
+    ], style={'width': '100%', 'display': 'inline-block', 'padding': '10px', 'marginLeft': '10px'})
+], style={'width': '100%', 'display': 'flex', 'flexDirection': 'column', 'verticalAlign': 'top', 'overflowY': 'auto', 'overflowX': 'auto', 'maxHeight': '100vh'})
 
 # Callback para mostrar el año y el trimestre seleccionados en el encabezado
 @app.callback(
@@ -245,7 +252,7 @@ def actualizar_titulo(departamento, municipio, tab):
                 filtros_seleccionados.append(municipio)
 
         if tab == 'tab-1':
-            return f'Mercado para: {", ".join(filtros_seleccionados)}' if filtros_seleccionados else 'Mercado a nivel nacional'
+            return f'Mercado para {", ".join(filtros_seleccionados)}' if filtros_seleccionados else 'Mercado a nivel nacional'
         elif tab == 'tab-2':
             return 'Los Ingresos solamente se pueden visualizar a nivel nacional'
         elif tab == 'tab-3':
@@ -344,7 +351,7 @@ def actualizar_graficas_fijas(anno, trimestre):
     total_accesos_gauge = go.Figure(go.Indicator(
         mode = 'gauge+number',
         value = total_accesos,
-        title = {'text': 'Total de Accesos'},
+        title = {'text': 'Total Accesos'},
         gauge = {'axis': {'range': [None, 10000000]},
                     'steps' : [
                         {'range': [0, 2000000], 'color': 'gainsboro'},
@@ -353,12 +360,12 @@ def actualizar_graficas_fijas(anno, trimestre):
                         {'range': [6000000, 8000000], 'color': 'silver'}],
                     'threshold' : {'line': {'color': 'red', 'width': 4}, 'thickness': 0.75, 'value': 9990000}}
     ))
-    total_accesos_gauge.update_layout(autosize=True, width=None, height=None)
+    total_accesos_gauge.update_layout(autosize=True)
     # Gráfico de medidor con el promedio de velocidad de descarga
     velocidad_promedio_gauge = go.Figure(go.Indicator(
         mode = 'gauge+number',
         value = promedio_velocidad,
-        title = {'text': 'Promedio Velocidad de Descarga (Mbps)'},
+        title = {'text': 'Velocidad Promedio Descarga (Mbps)'},
         gauge = {'axis': {'range': [None, 1000]},
                  'steps' : [
                      {'range': [0, 200], 'color': 'gainsboro'},
@@ -367,12 +374,12 @@ def actualizar_graficas_fijas(anno, trimestre):
                      {'range': [600, 800], 'color': 'silver'}],
                  'threshold' : {'line': {'color': 'red', 'width': 4}, 'thickness': 0.75, 'value': 990}}
     ))
-    velocidad_promedio_gauge.update_layout(autosize=True, width=None, height=None)
+    velocidad_promedio_gauge.update_layout(autosize=True)
     # Gráfico de medidor con el total de ingresos
     ingresos_gauge = go.Figure(go.Indicator(
         mode = 'gauge+number',
         value = total_ingresos,
-        title = {'text': 'Total de Ingresos (Billones de Pesos)'},
+        title = {'text': 'Total Ingresos (Billones Pesos)'},
         gauge = {'axis': {'range': [None, 2.5]},
                 'steps' : [
                     {'range': [0, 0.5], 'color': 'gainsboro'},
@@ -381,12 +388,12 @@ def actualizar_graficas_fijas(anno, trimestre):
                     {'range': [1.5, 2], 'color': 'silver'}],
                 'threshold' : {'line': {'color': 'red', 'width': 4}, 'thickness': 0.75, 'value': 2.49}}
     ))
-    velocidad_promedio_gauge.update_layout(autosize=True, width=None, height=None)
+    velocidad_promedio_gauge.update_layout(autosize=True)
     # Gráfico de medidor con el total de quejas
     quejas_gauge = go.Figure(go.Indicator(
         mode = 'gauge+number',
         value = total_quejas,
-        title = {'text': 'Total de Quejas'},
+        title = {'text': 'Total Quejas'},
         gauge = {'axis': {'range': [None, 1000000]},
                      'steps' : [
                      {'range': [0, 200000], 'color': 'gainsboro'},
@@ -395,7 +402,7 @@ def actualizar_graficas_fijas(anno, trimestre):
                      {'range': [600000, 800000], 'color': 'silver'}],
                  'threshold' : {'line': {'color': 'red', 'width': 4}, 'thickness': 0.75, 'value': 990000}}
     ))
-    quejas_gauge.update_layout(autosize=True, width=None, height=None)
+    quejas_gauge.update_layout(autosize=True)
 
     return [total_accesos_gauge, velocidad_promedio_gauge, ingresos_gauge, quejas_gauge]
 
